@@ -21,7 +21,7 @@ while True:
 
     if result.multi_hand_landmarks:
         for hand_landmarks in result.multi_hand_landmarks:
-            mp_draw.draw_landmarks(flip, hand_landmarks)
+            mp_draw.draw_landmarks(flip, hand_landmarks,mHands.HAND_CONNECTIONS)
 
     cv2.imshow("Hand tracker", flip)
     cv2.waitKey(1)
