@@ -4,7 +4,7 @@ import mediapipe as mp
 import numpy as np
 
 
-def get_label(index, hand, results):
+def get_hand_label(index, hand, results):
     output = None
     for idx, hand_detected in enumerate(results.multi_handedness):
         if hand_detected.classification[0].index == index:
@@ -21,6 +21,24 @@ def get_label(index, hand, results):
             print(label)
 
     return output
+
+
+def calculate_box_coords(hand):
+    x_max = 0
+    y_max = 0
+    x_min = w
+    y_min = h
+    for lm in hand.landmark:
+        x, y = int(lm.x * w), int(lm.y * h)
+        if x > x_max:
+            x_max = x
+        if y > y_max:
+            y_max = y
+        if x < x_min:
+            x_min = x
+        if y < y_min:
+            y_min = y
+    return x_min, y_min, x_max, y_max
 
 
 width, height = 600, 400
@@ -49,27 +67,14 @@ while True:
     multi_hands = result.multi_handedness
     if hand_lm:
         for num, hand in enumerate(hand_lm):
-            x_max = 0
-            y_max = 0
-            x_min = w
-            y_min = h
-            for lm in hand.landmark:
-                x, y = int(lm.x * w), int(lm.y * h)
-                if x > x_max:
-                    x_max = x
-                if y > y_max:
-                    y_max = y
-                if x < x_min:
-                    x_min = x
-                if y < y_min:
-                    y_min = y
+            x_min, y_min, x_max, y_max = calculate_box_coords(hand)
             cv2.rectangle(flip, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
             mp_draw.draw_landmarks(flip, hand, mHands.HAND_CONNECTIONS,
                                    mp_draw.DrawingSpec(color=(0, 255, 0), thickness=2, circle_radius=1),
                                    mp_draw.DrawingSpec(color=(0, 0, 255), thickness=4, circle_radius=2),
                                    )
-            if get_label(num, hand, result):
-                text, coord = get_label(num, hand, result)
+            if get_hand_label(num, hand, result):
+                text, coord = get_hand_label(num, hand, result)
                 cv2.putText(flip, text, coord, cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
 
     current_time = time.time()
