@@ -30,24 +30,3 @@ class FaceDetection:
                                            self.mpDraw.DrawingSpec(color=(0, 255, 0), thickness=2,
                                                                    circle_radius=2), )
         return frame
-
-
-def main():
-    curr_Time = 0
-    prev_Time = 0
-    cap = cv2.VideoCapture(0)
-    face_detector = FaceDetection()
-    while True:
-        success, frame = cap.read()
-        flip = cv2.flip(frame, 1)
-        flip = face_detector.face_detection(flip)
-        curr_Time = time.time()
-        fps = 1 // (curr_Time - prev_Time)
-        prev_Time = curr_Time
-        cv2.putText(flip, "FPS: " + str(fps), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-        cv2.imshow("Hand detection", flip)
-        cv2.waitKey(1)
-
-
-if __name__ == "__main__":
-    main()

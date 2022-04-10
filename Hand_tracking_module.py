@@ -20,7 +20,7 @@ class HandDetection:
 
         self.mp_draw = mp.solutions.drawing_utils
 
-    def detect_hands(self, frame, draw=True):
+    def hands_detection(self, frame, draw=True):
         frame_RGB = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         result = self.hands.process(frame_RGB)
         hand_lm = result.multi_hand_landmarks
@@ -30,9 +30,9 @@ class HandDetection:
                     x_min, y_min, x_max, y_max = self.calculate_box_coords(hand, frame)
                     cv2.rectangle(frame, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
                     self.mp_draw.draw_landmarks(frame, hand, self.mHands.HAND_CONNECTIONS,
-                                                self.mp_draw.DrawingSpec(color=(0, 0, 255), thickness=4,
-                                                                         circle_radius=4),
-                                                self.mp_draw.DrawingSpec(color=(0, 255, 0), thickness=4,
+                                                self.mp_draw.DrawingSpec(color=(0, 0, 255), thickness=2,
+                                                                         circle_radius=2),
+                                                self.mp_draw.DrawingSpec(color=(0, 255, 0), thickness=2,
                                                                          circle_radius=2),
                                                 )
                     if self.get_hand_label(num, hand, result):
@@ -75,25 +75,3 @@ class HandDetection:
             if y < y_min:
                 y_min = y
         return x_min, y_min, x_max, y_max
-
-
-def main():
-    curr_Time = 0
-    prev_Time = 0
-    cap = cv2.VideoCapture(0)
-    hand_detector = HandDetection()
-
-    while True:
-        success, frame = cap.read()
-        flip = cv2.flip(frame, 1)
-        flip = hand_detector.detect_hands(flip)
-        curr_Time = time.time()
-        fps = 1 // (curr_Time - prev_Time)
-        prev_Time = curr_Time
-        cv2.putText(flip, "FPS: " + str(fps), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-        cv2.imshow("Hand detection", flip)
-        cv2.waitKey(1)
-
-
-if __name__ == "__main__":
-    main()
